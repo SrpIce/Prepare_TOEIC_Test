@@ -131,14 +131,14 @@ function renderDay1Quiz(key,title){
  const draw=()=>{
   if(idx>=qs.length){host.innerHTML='<div class="explanation"><b>เสร็จสิ้น '+title+'</b><p>คะแนน: '+score+' / '+qs.length+' ('+Math.round(score/qs.length*100)+'%)</p><p>ทบทวนข้อที่ผิดจากคำอธิบาย แล้วจึงไปส่วนถัดไป</p><button class="secondary" id="retry_'+key+'">ทำชุดนี้อีกครั้ง</button></div>';host.querySelector('#retry_'+key).onclick=()=>{idx=0;score=0;locked=false;delete state[doneKey];save();draw()};state[doneKey]=true;save();updateDay1Completion();return}
   const q=qs[idx];locked=false;
-  host.innerHTML='<div class="q-meta">ข้อ '+(idx+1)+' / '+qs.length+' · '+title+'</div><p class="q-prompt">'+esc(q[0])+'</p><div class="answers">'+q[1].map((o,i)=>'<button class="answer" data-choice="'+i+'">'+String.fromCharCode(65+i)+'. '+esc(o)+'</button>').join('')+'</div><div id="feedback_'+key+'"></div>';
+  host.innerHTML='<div class="q-meta">ข้อ '+(idx+1)+' / '+qs.length+' · '+title+'</div><p class="q-prompt">'+esc(q[0])+'</p><div class="answers">'+q[1].map((o,i)=>'<button class="answer" data-choice="'+i+'">'+String.fromCharCode(65+i)+'. '+esc(o)+'</button>').join('')+'</div><div id="feedback_'+key+'"></div><button class="secondary" id="next_'+key+'" disabled>'+(idx===qs.length-1?'ดูผลคะแนน':'ข้อต่อไป')+' →</button>';
   host.querySelectorAll('[data-choice]').forEach(btn=>btn.onclick=()=>{
    if(locked)return;locked=true;const choice=+btn.dataset.choice,correct=choice===q[2];if(correct)score++;
    host.querySelectorAll('[data-choice]').forEach((b,i)=>{b.disabled=true;if(i===q[2])b.classList.add('correct');else if(i===choice)b.classList.add('wrong')});
    const type=key==='vocabulary'?'vocabulary':key==='grammar'?'grammar':key;
    record({type,tag:title,q:q[0],o:q[1],a:q[2],e:q[3]},choice,correct);
-   host.querySelector('#feedback_'+key).innerHTML='<div class="explanation"><b>'+(correct?'ถูกต้อง':'ยังไม่ถูก')+'</b><p>'+esc(q[3])+'</p><button class="secondary" id="next_'+key+'">'+(idx===qs.length-1?'ดูผลคะแนน':'ข้อต่อไป')+' →</button></div>';
-   host.querySelector('#next_'+key).onclick=()=>{idx++;draw()};
+   host.querySelector('#feedback_'+key).innerHTML='<div class="explanation"><b>'+(correct?'ถูกต้อง':'ยังไม่ถูก')+'</b><p>'+esc(q[3])+'</p></div>';
+   const next=host.querySelector('#next_'+key);next.disabled=false;next.onclick=()=>{idx++;draw()};
   });
  };
  draw();
