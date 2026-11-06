@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1224">
+  <title>TOEIC MASTER 900+</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-mark">TM</span><span>TOEIC MASTER <b>900+</b></span></a>
+    <span class="tag">84-DAY PROGRAM</span>
+  </header>
+  <main class="shell">
+    <section class="hero">
+      <p class="eyebrow">YOUR TOEIC JOURNEY STARTS HERE</p>
+      <h1>Build your path to<br><span>900+.</span></h1>
+      <p class="sub">A structured 12-week study workspace for Listening, Reading, vocabulary and grammar.</p>
+      <div class="hero-actions">
+        <button id="startBtn" class="primary">Continue learning <span>→</span></button>
+        <span class="muted">90 minutes a day · 84 days</span>
+      </div>
+    </section>
+    <section class="stats">
+      <article class="stat"><span>STUDY DAYS</span><strong id="daysDone">0 <small>/ 84</small></strong><div class="track"><i id="progressBar"></i></div></article>
+      <article class="stat"><span>LESSONS COMPLETED</span><strong id="lessonsDone">0</strong><p>Keep your daily streak going.</p></article>
+      <article class="stat"><span>TARGET SCORE</span><strong>900<small>+</small></strong><p>Ambitious goal, consistent practice.</p></article>
+    </section>
+    <section class="content-grid">
+      <article class="panel">
+        <div class="section-heading"><div><p class="eyebrow">YOUR CURRICULUM</p><h2>12-week roadmap</h2></div><span class="pill">84 DAYS</span></div>
+        <div id="weeks" class="weeks"></div>
+      </article>
+      <aside class="panel today">
+        <p class="eyebrow">TODAY'S FOCUS</p><h2 id="todayTitle">Day 1 · Diagnostic & Core Vocabulary</h2>
+        <p id="todayDesc">เริ่มต้นด้วยคำศัพท์ในบริบทการทำงาน และทบทวนพื้นฐานไวยากรณ์</p>
+        <ul><li>Vocabulary & collocations</li><li>Grammar / Reading strategy</li><li>Listening practice</li><li>Review & error log</li></ul>
+        <button id="completeBtn" class="primary full">Mark day as complete</button>
+        <p class="small muted">Progress is saved in this browser on this device.</p>
+      </aside>
+    </section>
+    <section class="panel practice">
+      <div class="section-heading"><div><p class="eyebrow">QUICK PRACTICE</p><h2>Grammar check</h2></div><span class="pill">SAMPLE</span></div>
+      <p class="question">Each employee _____ required to wear an identification badge.</p>
+      <div class="choices">
+        <button class="choice" data-answer="A">A. are</button>
+        <button class="choice" data-answer="B">B. is</button>
+        <button class="choice" data-answer="C">C. have</button>
+        <button class="choice" data-answer="D">D. were</button>
+      </div>
+      <p id="feedback" class="feedback" aria-live="polite">Choose an answer to see the explanation.</p>
+    </section>
+  </main>
+  <footer>TOEIC MASTER 900+ · Independent study project · Not affiliated with ETS</footer>
+  <script src="app.js"></script>
+</body>
+</html>
