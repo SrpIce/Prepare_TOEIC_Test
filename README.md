@@ -12,6 +12,7 @@ Independent, responsive TOEIC study workspace for an 84-day / 12-week learning p
 - The authored content bank contains 83 day records (Days 2–84) and 415 unique daily assessment question stems.
 
 ## Modules
+- Placement test: 80 original diagnostic questions across vocabulary, grammar, listening and reading, with a 60-minute timer and skill-level feedback. Results are saved locally and are not an official TOEIC score or CEFR certification.
 - Dashboard, 84-day roadmap and daily lessons.
 - Vocabulary, grammar, listening and reading activities.
 - Practice bank with filters, explanations and error log.
