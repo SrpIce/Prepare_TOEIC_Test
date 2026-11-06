@@ -135,10 +135,12 @@ function renderDay1Quiz(key,title){
   host.querySelectorAll('[data-choice]').forEach(btn=>btn.onclick=()=>{
    if(locked)return;locked=true;const choice=+btn.dataset.choice,correct=choice===q[2];if(correct)score++;
    host.querySelectorAll('[data-choice]').forEach((b,i)=>{b.disabled=true;if(i===q[2])b.classList.add('correct');else if(i===choice)b.classList.add('wrong')});
-   const type=key==='vocabulary'?'vocabulary':key==='grammar'?'grammar':key;
-   record({type,tag:title,q:q[0],o:q[1],a:q[2],e:q[3]},choice,correct);
+   const next=host.querySelector('#next_'+key);
+   next.disabled=false;
+   next.onclick=()=>{idx++;draw()};
    host.querySelector('#feedback_'+key).innerHTML='<div class="explanation"><b>'+(correct?'ถูกต้อง':'ยังไม่ถูก')+'</b><p>'+esc(q[3])+'</p></div>';
-   const next=host.querySelector('#next_'+key);next.disabled=false;next.onclick=()=>{idx++;draw()};
+   const type=key==='vocabulary'?'vocabulary':key==='grammar'?'grammar':key;
+   try{record({type,tag:title,q:q[0],o:q[1],a:q[2],e:q[3]},choice,correct)}catch(err){console.error('Could not save quiz attempt:',err)}
   });
  };
  draw();
