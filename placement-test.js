@@ -94,7 +94,10 @@ reading:[
 };
 const labels={vocabulary:'Vocabulary',grammar:'Grammar',listening:'Listening',reading:'Reading'};
 let answers=Array(80).fill(null),index=0,remaining=60*60,timer=null;
-const all=Object.entries(groups).flatMap(([skill,qs])=>qs.map((q,i)=>({skill,q:q[0],o:q.slice(1,5),a:q[5],e:q[6],audio:q[7]||''})));
+const readingPrompts=[
+'Why was the notice written?','What is the recipient asked to do?','Which qualification is preferred rather than required?','What must department heads do by May 5?','How can attendees receive a discount?','What is the supplier offering?','What will change next Monday?','What is the purpose of the email?','When will the late fee apply?','Which building is inspected first?','What is the recipient expected to review?','What must visitors do?','What contributed to the rise in online sales?','When will selected participants be informed?','What is required for reimbursement?','What does the sender request?','Where is the temporary customer service desk?','Which section requires attention?','How much advance notice is required?','What must employees do by November 8?'
+];
+const all=Object.entries(groups).flatMap(([skill,qs])=>qs.map((q,i)=>({skill,q:skill==='reading'?q[0]+'|||'+readingPrompts[i]:q[0],o:q.slice(1,5),a:q[5],e:q[6],audio:q[7]||''})));
 function mount(){
  const host=$('#placementPanel');if(!host)return;
  const saved=localStorage.getItem(STORE);
