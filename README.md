@@ -4,10 +4,12 @@ Independent, responsive TOEIC study workspace for an 84-day / 12-week learning p
 
 ## Course content
 - 84 daily lesson plans across 12 business and TOEIC skill themes.
-- Days 1–84 include day-specific vocabulary, grammar guidance, listening scripts, reading passages, and daily assessment questions.
-- Days 2–84 use an authored five-question daily assessment with immediate feedback, explanations, and local error logging. Day 1 retains its dedicated 30-question lesson.
-- The authored content bank contains 83 day records (Days 2–84), with 12 vocabulary entries and five original assessment items per day.
-- Practice bank includes the authored daily questions alongside the base practice set.
+- Day 1 includes its dedicated foundation lesson and 30-question assessment.
+- Days 2–7 include 8 vocabulary entries and five day-specific assessment questions per day.
+- Days 8–84 include 12 vocabulary entries and five day-specific assessment questions per day.
+- Every day from Day 1 through Day 84 has a grammar focus; Days 2–84 have a written grammar explanation, a listening script, a reading passage, and a daily assessment.
+- Days 2–84 assessments provide immediate feedback, answer explanations, and local error logging.
+- The authored content bank contains 83 day records (Days 2–84) and 415 unique daily assessment question stems.
 
 ## Modules
 - Dashboard, 84-day roadmap and daily lessons.
@@ -19,7 +21,7 @@ Independent, responsive TOEIC study workspace for an 84-day / 12-week learning p
 
 ## Important limitations
 - Listening uses browser Text-to-Speech, not recorded native-speaker audio.
-- Reading and listening materials are original practice passages/scripts, not licensed ETS material.
+- Reading and listening materials are original practice passages/scripts, not licensed ETS material. They are shorter practice exercises and are not a complete reproduction of every official TOEIC task format.
 - The 200-question mock interface currently populates from the available question pool; it is not 200 independently validated TOEIC-equivalent questions. Do not interpret its score as an official TOEIC score prediction.
 - Progress is stored in localStorage on the current browser/device. There is no account login, server database or cross-device synchronization.
 - 900+ is a learning target, not a guaranteed result.
