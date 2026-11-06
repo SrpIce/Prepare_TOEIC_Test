@@ -216,6 +216,6 @@ function resetAllProgress(){
  if(!first)return;
  const second=confirm('ยืนยันครั้งสุดท้าย: การรีเซ็ตไม่สามารถย้อนกลับได้ ต้องการลบข้อมูลทั้งหมดจริงหรือไม่?');
  if(!second)return;
- try{localStorage.removeItem(STORE);state=load();currentDay=1;practiceIndex=0;mock=null;if(timerId){clearInterval(timerId);timerId=null;}renderRoadmap();renderStats();renderDays();renderAnalytics();openLesson(1);renderPractice();const status=$('#resetStatus');if(status)status.textContent='รีเซ็ตข้อมูลทั้งหมดแล้ว เริ่มต้นใหม่ได้เลย';}catch(err){console.error('Reset failed',err);alert('ไม่สามารถรีเซ็ตข้อมูลได้ กรุณาตรวจสอบการตั้งค่าเบราว์เซอร์');}
+ try{localStorage.removeItem(STORE);localStorage.removeItem('toeic-placement-v1');state=load();currentDay=1;practiceIndex=0;mock=null;if(timerId){clearInterval(timerId);timerId=null;}renderRoadmap();renderStats();renderDays();renderAnalytics();openLesson(1);renderPractice();const status=$('#resetStatus');if(status)status.textContent='รีเซ็ตข้อมูลทั้งหมดแล้ว เริ่มต้นใหม่ได้เลย';}catch(err){console.error('Reset failed',err);alert('ไม่สามารถรีเซ็ตข้อมูลได้ กรุณาตรวจสอบการตั้งค่าเบราว์เซอร์');}
 }
 function init(){renderRoadmap();renderStats();renderDays();openLesson(1);renderPractice();const reset=$('#resetAll');if(reset)reset.onclick=resetAllProgress;}init();
