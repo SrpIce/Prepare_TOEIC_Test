@@ -129,7 +129,7 @@ function renderDay1Quiz(key,title){
  let idx=0, score=0, locked=false;
  const host=document.querySelector('#quiz_'+key);
  const draw=()=>{
-  if(idx>=qs.length){host.innerHTML='<div class="explanation"><b>เสร็จสิ้น '+title+'</b><p>คะแนน: '+score+' / '+qs.length+' ('+Math.round(score/qs.length*100)+'%)</p><p>ทบทวนข้อที่ผิดจากคำอธิบาย แล้วจึงไปส่วนถัดไป</p><button class="secondary" id="retry_'+key+'">ทำชุดนี้อีกครั้ง</button></div>';host.querySelector('#retry_'+key).onclick=()=>{idx=0;score=0;locked=false;delete state[doneKey];save();draw()};state[doneKey]=true;save();return}
+  if(idx>=qs.length){host.innerHTML='<div class="explanation"><b>เสร็จสิ้น '+title+'</b><p>คะแนน: '+score+' / '+qs.length+' ('+Math.round(score/qs.length*100)+'%)</p><p>ทบทวนข้อที่ผิดจากคำอธิบาย แล้วจึงไปส่วนถัดไป</p><button class="secondary" id="retry_'+key+'">ทำชุดนี้อีกครั้ง</button></div>';host.querySelector('#retry_'+key).onclick=()=>{idx=0;score=0;locked=false;delete state[doneKey];save();draw()};state[doneKey]=true;save();updateDay1Completion();return}
   const q=qs[idx];locked=false;
   host.innerHTML='<div class="q-meta">ข้อ '+(idx+1)+' / '+qs.length+' · '+title+'</div><p class="q-prompt">'+esc(q[0])+'</p><div class="answers">'+q[1].map((o,i)=>'<button class="answer" data-choice="'+i+'">'+String.fromCharCode(65+i)+'. '+esc(o)+'</button>').join('')+'</div><div id="feedback_'+key+'"></div>';
   host.querySelectorAll('[data-choice]').forEach(btn=>btn.onclick=()=>{
@@ -142,6 +142,17 @@ function renderDay1Quiz(key,title){
   });
  };
  draw();
+}
+function updateDay1Completion(){
+ const keys=['vocabulary','grammar','listening','reading'];
+ const done=keys.every(k=>state['day1_'+k]);
+ const btn=document.querySelector('#markDay');
+ const summary=document.querySelector('#day1Summary');
+ if(!btn||!summary)return;
+ btn.disabled=!done;
+ const attempts=state.attempts.filter(a=>a.at&&a.tag&&['Vocabulary','Grammar','Listening','Reading'].includes(a.tag));
+ const total=attempts.length,correct=attempts.filter(a=>a.correct).length;
+ summary.innerHTML=done?'<b>ทำครบทุกส่วนแล้ว</b><p>จำนวนคำตอบที่บันทึกในบทเรียน: '+total+' · ถูก '+correct+' ข้อ</p><p>ไปที่ Performance เพื่อดูความแม่นยำและข้อผิดพลาด</p>':'ทำแบบทดสอบให้ครบทั้ง 4 ส่วนก่อนกดจบบทเรียน';
 }
 function openLesson(n){
  if(n!==1){legacyOpenLesson(n);return}
@@ -162,8 +173,7 @@ function openLesson(n){
  ['vocabulary','grammar','listening','reading'].forEach(k=>renderDay1Quiz(k,{vocabulary:'Vocabulary',grammar:'Grammar',listening:'Listening',reading:'Reading'}[k]));
  const audio=()=>speak(listenScript);
  document.querySelector('#playAudio').onclick=audio;document.querySelector('#replayAudio').onclick=audio;
- const check=()=>{const done=['vocabulary','grammar','listening','reading'].every(k=>state['day1_'+k]);const btn=document.querySelector('#markDay');btn.disabled=!done;const attempts=state.attempts.filter(a=>a.at&&a.tag&&['Vocabulary','Grammar','Listening','Reading'].includes(a.tag));const total=attempts.length;const correct=attempts.filter(a=>a.correct).length;document.querySelector('#day1Summary').innerHTML=done?'<b>ทำครบทุกส่วนแล้ว</b><p>จำนวนคำตอบที่บันทึกในบทเรียน: '+total+' · ถูก '+correct+' ข้อ</p><p>ไปที่ Performance เพื่อดูความแม่นยำและข้อผิดพลาด</p>':'ทำแบบทดสอบให้ครบทั้ง 4 ส่วนก่อนกดจบบทเรียน'};
- const observer=new MutationObserver(check);observer.observe(document.querySelector('#lessonPanel'),{childList:true,subtree:true});check();
+ updateDay1Completion();
  document.querySelector('#markDay').onclick=()=>{if(['vocabulary','grammar','listening','reading'].every(k=>state['day1_'+k])){if(!state.done.includes(1))state.done.push(1);state.done.sort((a,b)=>a-b);save();renderStats();renderRoadmap();document.querySelector('#markDay').textContent='Day 1 completed ✓';document.querySelector('#markDay').disabled=true}};
 }
 
