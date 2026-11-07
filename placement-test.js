@@ -97,7 +97,7 @@ let answers=Array(80).fill(null),index=0,remaining=60*60,timer=null,selectedAcce
 const readingPrompts=[
 'Why was the notice written?','What is the recipient asked to do?','Which qualification is preferred rather than required?','What must department heads do by May 5?','How can attendees receive a discount?','What is the supplier offering?','What will change next Monday?','What is the purpose of the email?','When will the late fee apply?','Which building is inspected first?','What is the recipient expected to review?','What must visitors do?','What contributed to the rise in online sales?','When will selected participants be informed?','What is required for reimbursement?','What does the sender request?','Where is the temporary customer service desk?','Which section requires attention?','How much advance notice is required?','What must employees do by November 8?'
 ];
-const all=Object.entries(groups).flatMap(([skill,qs],g)=>qs.map((q,i)=>{const opts=q.slice(1,5),shift=(i+g)%4;return{skill,q:skill==='reading'?q[0]+'|||'+readingPrompts[i]:q[0],o:[...opts.slice(shift),...opts.slice(0,shift)],a:(q[5]-shift+4)%4,e:q[6],audio:q[7]||''}}));
+const all=Object.entries(groups).flatMap(([skill,qs],g)=>qs.map((q,i)=>{const opts=skill==='reading'?q.slice(2,6):q.slice(1,5),shift=(i+g)%4,correctIndex=skill==='reading'?q[6]:q[5],explanation=skill==='reading'?q[7]:q[6];return{skill,q:skill==='reading'?q[0]+'|||'+readingPrompts[i]:q[0],o:[...opts.slice(shift),...opts.slice(0,shift)],a:(correctIndex-shift+4)%4,e:explanation,audio:skill==='listening'?q[7]||'':''}}));
 function mount(){
  const host=$('#placementPanel');if(!host)return;
  const saved=localStorage.getItem(STORE);
