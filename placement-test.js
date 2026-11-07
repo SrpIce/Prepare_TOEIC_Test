@@ -154,18 +154,48 @@ function finish(){
  const band=pct>=90?'Advanced diagnostic range':pct>=75?'Upper-intermediate diagnostic range':pct>=60?'Intermediate diagnostic range':pct>=40?'Elementary diagnostic range':'Foundation diagnostic range';
  const cefr=estimateCEFR(pct);
  const skillCEFR=Object.fromEntries(Object.entries(scores).map(([skill,score])=>[skill,estimateCEFR(score/counts[skill]*100)]));
- const result={date:new Date().toISOString(),scores,counts,total,pct,band,cefr,skillCEFR,cefrNote:'Preliminary internal estimate only; this test has not been empirically calibrated to CEFR.',answers:answers.slice(),duration:3600-remaining};
+ const result={resultVersion:2,date:new Date().toISOString(),scores,counts,total,pct,band,cefr,skillCEFR,cefrNote:'Preliminary internal estimate only; this test has not been empirically calibrated to CEFR.',answers:answers.slice(),duration:3600-remaining};
  localStorage.setItem(STORE,JSON.stringify(result));
  $('#placementExam').hidden=true;showResult(result);
 }
 function showResult(r){
+ // Migrate historical attempts created before the Reading answer-map fix.
+ // Old Reading options were q.slice(1,5): prompt + first three choices.
+ // Recover the selected text using the old rotation, then map it to the corrected options.
+ if(!r.resultVersion&&Array.isArray(r.answers)&&r.answers.length===80){
+  const migratedAnswers=r.answers.slice();
+  const legacyInvalid=[];
+  for(let i=0;i<20;i++){
+   const globalIndex=60+i, selected=migratedAnswers[globalIndex];
+   if(selected===null||selected===undefined)continue;
+   const q=groups.reading[i], oldOptions=q.slice(1,5), shift=(i+3)%4;
+   const selectedText=oldOptions[(selected+shift)%4];
+   const currentOptions=q.slice(2,6);
+   const currentIndex=currentOptions.indexOf(selectedText);
+   if(currentIndex<0){legacyInvalid.push({question:globalIndex+1,selectedText});migratedAnswers[globalIndex]=null;}
+   else migratedAnswers[globalIndex]=(currentIndex-shift+4)%4;
+  }
+  r.answers=migratedAnswers;
+  const recalculated={vocabulary:0,grammar:0,listening:0,reading:0};
+  const counts={vocabulary:20,grammar:20,listening:20,reading:20};
+  all.forEach((q,i)=>{if(migratedAnswers[i]===q.a)recalculated[q.skill]++});
+  const total=Object.values(recalculated).reduce((a,b)=>a+b,0);
+  const pct=Math.round(total/80*100);
+  r={...r,answers:migratedAnswers,scores:recalculated,counts,total,pct,
+    band:pct>=90?'Advanced diagnostic range':pct>=75?'Upper-intermediate diagnostic range':pct>=60?'Intermediate diagnostic range':pct>=40?'Elementary diagnostic range':'Foundation diagnostic range',
+    cefr:estimateCEFR(pct),
+    skillCEFR:Object.fromEntries(Object.entries(recalculated).map(([skill,score])=>[skill,estimateCEFR(score/20*100)])),
+    historicalReadingMigration:true,legacyInvalid,resultVersion:2};
+  localStorage.setItem(STORE,JSON.stringify(r));
+ }
  $('#placementExam').hidden=true;$('#placementResult').hidden=false;
  const weak=Object.entries(r.scores).sort((a,b)=>a[1]-b[1])[0][0];
  const overallCEFR=r.cefr||estimateCEFR(r.pct);
  const skillCEFR=r.skillCEFR||Object.fromEntries(Object.entries(r.scores).map(([k,v])=>[k,estimateCEFR(v/(r.counts?.[k]||20)*100)]));
  const advice={vocabulary:'เน้น word families, collocations และคำศัพท์ตามบริบทธุรกิจ',grammar:'ทบทวน parts of speech, verb patterns, clauses และ subject–verb agreement',listening:'ฝึกจับ main idea, key details, paraphrase และ distractors',reading:'ฝึก skimming, scanning, inference และบริหารเวลา Part 5–7'};
+ const migrationNotice=r.historicalReadingMigration?'<div class="explanation"><b>อัปเดตผลสอบเดิมแล้ว</b><p>ระบบแปลงคำตอบ Reading จากรูปแบบตัวเลือกเดิมและคำนวณคะแนนใหม่แล้ว'+(r.legacyInvalid?.length?' โดยมี '+r.legacyInvalid.length+' ข้อที่คำตอบเดิมเป็นข้อความที่ไม่ใช่ตัวเลือกคำตอบ จึงนับเป็นไม่ได้ตอบ':'')+'.</p></div>':'';
  const reviewHtml='<section class="answer-review"><h3>เฉลยและคำอธิบายครบ 80 ข้อ</h3><p class="small muted">เปิดดูแต่ละข้อเพื่อตรวจคำตอบและอ่านเหตุผลประกอบ</p>'+all.map((q,i)=>{const chosenIndex=r.answers?.[i];const correct=chosenIndex===q.a;const passage=q.skill==='reading'?q.q.split('|||')[0]:'';const prompt=q.skill==='reading'?q.q.split('|||')[1]:q.q;return '<details class="review-item"><summary><span>ข้อ '+(i+1)+' · '+labels[q.skill]+'</span><b class="'+(correct?'review-correct':'review-wrong')+'">'+(chosenIndex===null||chosenIndex===undefined?'ไม่ได้ตอบ':correct?'ถูกต้อง':'ไม่ถูกต้อง')+'</b></summary>'+(passage?'<div class="placement-passage">'+escapeHTML(passage)+'</div>':'')+'<p class="review-question">'+escapeHTML(prompt)+'</p><p><b>คำตอบที่ถูก:</b> '+String.fromCharCode(65+q.a)+'. '+escapeHTML(q.o[q.a])+'</p><p><b>คำตอบของคุณ:</b> '+(chosenIndex===null||chosenIndex===undefined?'ไม่ได้ตอบ':String.fromCharCode(65+chosenIndex)+'. '+escapeHTML(q.o[chosenIndex]))+'</p><p class="review-explanation"><b>คำอธิบาย:</b> '+escapeHTML(q.e)+'</p>'+(q.skill==='listening'?'<p class="small muted"><b>Listening transcript:</b> '+escapeHTML(q.audio)+'</p>':'')+'</details>'}).join('')+'</section>';
- $('#placementResult').innerHTML='<p class="eyebrow">YOUR BASELINE</p><h2>ผลการประเมินเบื้องต้น</h2><div class="result-score">'+r.total+' / 80 <small>('+r.pct+'%)</small></div><section class="cefr-card"><p class="eyebrow">ESTIMATED CEFR LEVEL</p><div class="cefr-level">'+overallCEFR+'</div><p>ระดับภาษาอังกฤษโดยประมาณจากคะแนนรวม</p><span class="cefr-caution">ความเชื่อมั่น: ต่ำ · ใช้เป็นแนวทางตั้งต้นเท่านั้น</span></section><h3>'+r.band+'</h3><p class="muted">วันที่ทำ: '+new Date(r.date).toLocaleString('th-TH')+' · ใช้เวลา '+fmt(r.duration)+'</p><h3>CEFR แยกตามทักษะ</h3><div class="placement-results">'+Object.entries(r.scores).map(([k,v])=>'<div class="skill-row"><div><b>'+labels[k]+'</b><span>'+skillCEFR[k]+' · '+v+' / 20 ('+Math.round(v/20*100)+'%)</span></div><div class="bar"><i style="width:'+(v/20*100)+'%"></i></div></div>').join('')+'</div><div class="explanation"><b>จุดที่ควรเริ่มพัฒนา: '+labels[weak]+'</b><p>'+advice[weak]+'</p><p>หลักสูตรแนะนำ: เริ่ม Day 1 และใช้ผลแยกทักษะนี้จัดลำดับการทบทวน โดยยังคงเรียนครบทั้ง 84 วัน</p></div><p class="small muted">CEFR เป็นการประมาณแบบ heuristic จากข้อสอบภายใน 80 ข้อ ไม่ใช่ผลสอบ CEFR ที่ผ่านการสอบเทียบหรือการรับรองจากหน่วยงานภาษา ข้อสอบมีจำนวนข้อจำกัดและ Listening ใช้ Text-to-Speech จึงควรยืนยันระดับด้วยแบบทดสอบมาตรฐานเพิ่มเติม · C2 ไม่ได้ประเมินในชุดนี้</p><button class="primary" id="placementGoCourse">เริ่มหลักสูตร 84 วัน →</button> <button class="secondary" id="placementRetake">ทำแบบทดสอบใหม่</button>'+reviewHtml;
+ $('#placementResult').innerHTML=migrationNotice+'<p class="eyebrow">YOUR BASELINE</p><h2>ผลการประเมินเบื้องต้น</h2><div class="result-score">'+r.total+' / 80 <small>('+r.pct+'%)</small></div><section class="cefr-card"><p class="eyebrow">ESTIMATED CEFR LEVEL</p><div class="cefr-level">'+overallCEFR+'</div><p>ระดับภาษาอังกฤษโดยประมาณจากคะแนนรวม</p><span class="cefr-caution">ความเชื่อมั่น: ต่ำ · ใช้เป็นแนวทางตั้งต้นเท่านั้น</span></section><h3>'+r.band+'</h3><p class="muted">วันที่ทำ: '+new Date(r.date).toLocaleString('th-TH')+' · ใช้เวลา '+fmt(r.duration)+'</p><h3>CEFR แยกตามทักษะ</h3><div class="placement-results">'+Object.entries(r.scores).map(([k,v])=>'<div class="skill-row"><div><b>'+labels[k]+'</b><span>'+skillCEFR[k]+' · '+v+' / 20 ('+Math.round(v/20*100)+'%)</span></div><div class="bar"><i style="width:'+(v/20*100)+'%"></i></div></div>').join('')+'</div><div class="explanation"><b>จุดที่ควรเริ่มพัฒนา: '+labels[weak]+'</b><p>'+advice[weak]+'</p><p>หลักสูตรแนะนำ: เริ่ม Day 1 และใช้ผลแยกทักษะนี้จัดลำดับการทบทวน โดยยังคงเรียนครบทั้ง 84 วัน</p></div><p class="small muted">CEFR เป็นการประมาณแบบ heuristic จากข้อสอบภายใน 80 ข้อ ไม่ใช่ผลสอบ CEFR ที่ผ่านการสอบเทียบหรือการรับรองจากหน่วยงานภาษา ข้อสอบมีจำนวนข้อจำกัดและ Listening ใช้ Text-to-Speech จึงควรยืนยันระดับด้วยแบบทดสอบมาตรฐานเพิ่มเติม · C2 ไม่ได้ประเมินในชุดนี้</p><button class="primary" id="placementGoCourse">เริ่มหลักสูตร 84 วัน →</button> <button class="secondary" id="placementRetake">ทำแบบทดสอบใหม่</button>'+reviewHtml;
  $('#placementGoCourse').onclick=()=>{if(typeof showView==='function')showView('course');if(typeof openLesson==='function')openLesson(1)};
  $('#placementRetake').onclick=start;
 }
