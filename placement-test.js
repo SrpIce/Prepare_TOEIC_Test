@@ -154,7 +154,7 @@ function finish(){
  const band=pct>=90?'Advanced diagnostic range':pct>=75?'Upper-intermediate diagnostic range':pct>=60?'Intermediate diagnostic range':pct>=40?'Elementary diagnostic range':'Foundation diagnostic range';
  const cefr=estimateCEFR(pct);
  const skillCEFR=Object.fromEntries(Object.entries(scores).map(([skill,score])=>[skill,estimateCEFR(score/counts[skill]*100)]));
- const result={date:new Date().toISOString(),scores,counts,total,pct,band,cefr,skillCEFR,cefrNote:'Preliminary internal estimate only; this test has not been empirically calibrated to CEFR.',answers:answers.slice(),duration:3600-remaining};
+ const result={resultVersion:2,date:new Date().toISOString(),scores,counts,total,pct,band,cefr,skillCEFR,cefrNote:'Preliminary internal estimate only; this test has not been empirically calibrated to CEFR.',answers:answers.slice(),duration:3600-remaining};
  localStorage.setItem(STORE,JSON.stringify(result));
  $('#placementExam').hidden=true;showResult(result);
 }
@@ -162,7 +162,7 @@ function showResult(r){
  // Migrate historical attempts created before the Reading answer-map fix.
  // Old Reading options were q.slice(1,5): prompt + first three choices.
  // Recover the selected text using the old rotation, then map it to the corrected options.
- if(Array.isArray(r.answers)&&r.answers.length===80){
+ if(!r.resultVersion&&Array.isArray(r.answers)&&r.answers.length===80){
   const migratedAnswers=r.answers.slice();
   const legacyInvalid=[];
   for(let i=0;i<20;i++){
@@ -185,7 +185,7 @@ function showResult(r){
     band:pct>=90?'Advanced diagnostic range':pct>=75?'Upper-intermediate diagnostic range':pct>=60?'Intermediate diagnostic range':pct>=40?'Elementary diagnostic range':'Foundation diagnostic range',
     cefr:estimateCEFR(pct),
     skillCEFR:Object.fromEntries(Object.entries(recalculated).map(([skill,score])=>[skill,estimateCEFR(score/20*100)])),
-    historicalReadingMigration:true,legacyInvalid};
+    historicalReadingMigration:true,legacyInvalid,resultVersion:2};
   localStorage.setItem(STORE,JSON.stringify(r));
  }
  $('#placementExam').hidden=true;$('#placementResult').hidden=false;
