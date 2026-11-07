@@ -10,3 +10,17 @@
 .cefr-level{font-size:48px;font-weight:900;letter-spacing:-.04em;color:var(--cyan);line-height:1.2}
 .cefr-card p{margin:7px 0;color:#c6d5e9;font-size:13px}
 .cefr-caution{display:inline-block;margin-top:7px;padding:6px 9px;border:1px solid #ffbd8366;border-radius:7px;color:var(--orange);font-size:11px}
+
+/* Placement listening accent and post-test answer review */
+.placement-accent-label{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;color:var(--muted);font-size:12px}
+.placement-accent-label select{min-width:190px}
+.answer-review{margin:28px 0;border-top:1px solid var(--line);padding-top:18px}
+.answer-review h3{margin-bottom:5px}
+.review-item{margin:9px 0;background:#0b182a;border:1px solid var(--line);border-radius:9px;padding:0 13px}
+.review-item summary{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;list-style-position:inside;padding:13px 0;font-size:13px}
+.review-item summary b{font-size:11px}
+.review-correct{color:var(--cyan)}
+.review-wrong{color:var(--orange)}
+.review-item p{font-size:13px;line-height:1.65;color:#c6d5e9}
+.review-question{font-weight:700;color:var(--text)!important}
+.review-explanation{padding:10px;background:#14243e;border-radius:7px}
