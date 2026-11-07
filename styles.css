@@ -3,3 +3,10 @@
 .placement-intro{max-width:760px;line-height:1.75}.placement-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0}.placement-stats span{background:#0b182a;border:1px solid var(--line);padding:12px;border-radius:8px;text-align:center;font-size:12px}.placement-progress{height:6px;background:#263b59;border-radius:9px;overflow:hidden;margin:12px 0}.placement-progress i{display:block;height:100%;background:linear-gradient(90deg,#548fff,#69e0d0)}.placement-controls{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0}.answer.selected{border-color:var(--cyan);background:#173049}.placement-passage{white-space:pre-line;background:#0b182a;border:1px solid var(--line);padding:16px;border-radius:9px;line-height:1.8;font-size:13px;margin:12px 0}.placement-results{margin:20px 0}.placement-results .skill-row{margin:12px 0}@media(max-width:700px){.placement-stats{grid-template-columns:repeat(2,1fr)}.placement-controls{align-items:stretch}.placement-controls button{flex:1}}
 
 .welcome-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+/* Provisional CEFR estimate */
+.cefr-card{margin:18px 0;padding:20px;border:1px solid #4b7192;border-radius:13px;background:linear-gradient(135deg,#142d49,#102237);max-width:520px}
+.cefr-card .eyebrow{margin:0 0 5px}
+.cefr-level{font-size:48px;font-weight:900;letter-spacing:-.04em;color:var(--cyan);line-height:1.2}
+.cefr-card p{margin:7px 0;color:#c6d5e9;font-size:13px}
+.cefr-caution{display:inline-block;margin-top:7px;padding:6px 9px;border:1px solid #ffbd8366;border-radius:7px;color:var(--orange);font-size:11px}

@@ -111,6 +111,14 @@ function start(){
  timer=setInterval(()=>{remaining--;const el=$('#placementTimer');if(el)el.textContent=fmt(remaining);if(remaining<=0)finish();},1000);
 }
 function fmt(n){return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')}
+function estimateCEFR(percent){
+ // Conservative, provisional score bands for this unvalidated in-house diagnostic.
+ if(percent<25)return 'A1';
+ if(percent<40)return 'A2';
+ if(percent<55)return 'B1';
+ if(percent<70)return 'B2';
+ return 'C1';
+}
 function render(){
  const item=all[index],groupStart=Math.floor(index/20)*20;
  const context=item.skill==='listening'?item.audio:item.skill==='reading'?item.q.split('|||')[0]:'';
@@ -129,15 +137,19 @@ function finish(){
  const total=Object.values(scores).reduce((a,b)=>a+b,0);
  const pct=Math.round(total/80*100);
  const band=pct>=90?'Advanced diagnostic range':pct>=75?'Upper-intermediate diagnostic range':pct>=60?'Intermediate diagnostic range':pct>=40?'Elementary diagnostic range':'Foundation diagnostic range';
- const result={date:new Date().toISOString(),scores,counts,total,pct,band,answers:answers.slice(),duration:3600-remaining};
+ const cefr=estimateCEFR(pct);
+ const skillCEFR=Object.fromEntries(Object.entries(scores).map(([skill,score])=>[skill,estimateCEFR(score/counts[skill]*100)]));
+ const result={date:new Date().toISOString(),scores,counts,total,pct,band,cefr,skillCEFR,cefrNote:'Preliminary internal estimate only; this test has not been empirically calibrated to CEFR.',answers:answers.slice(),duration:3600-remaining};
  localStorage.setItem(STORE,JSON.stringify(result));
  $('#placementExam').hidden=true;showResult(result);
 }
 function showResult(r){
  $('#placementExam').hidden=true;$('#placementResult').hidden=false;
  const weak=Object.entries(r.scores).sort((a,b)=>a[1]-b[1])[0][0];
+ const overallCEFR=r.cefr||estimateCEFR(r.pct);
+ const skillCEFR=r.skillCEFR||Object.fromEntries(Object.entries(r.scores).map(([k,v])=>[k,estimateCEFR(v/(r.counts?.[k]||20)*100)]));
  const advice={vocabulary:'เน้น word families, collocations และคำศัพท์ตามบริบทธุรกิจ',grammar:'ทบทวน parts of speech, verb patterns, clauses และ subject–verb agreement',listening:'ฝึกจับ main idea, key details, paraphrase และ distractors',reading:'ฝึก skimming, scanning, inference และบริหารเวลา Part 5–7'};
- $('#placementResult').innerHTML='<p class="eyebrow">YOUR BASELINE</p><h2>ผลการประเมินเบื้องต้น</h2><div class="result-score">'+r.total+' / 80 <small>('+r.pct+'%)</small></div><h3>'+r.band+'</h3><p class="muted">วันที่ทำ: '+new Date(r.date).toLocaleString('th-TH')+' · ใช้เวลา '+fmt(r.duration)+'</p><div class="placement-results">'+Object.entries(r.scores).map(([k,v])=>'<div class="skill-row"><div><b>'+labels[k]+'</b><span>'+v+' / 20 ('+Math.round(v/20*100)+'%)</span></div><div class="bar"><i style="width:'+(v/20*100)+'%"></i></div></div>').join('')+'</div><div class="explanation"><b>จุดที่ควรเริ่มพัฒนา: '+labels[weak]+'</b><p>'+advice[weak]+'</p><p>หลักสูตรแนะนำ: เริ่ม Day 1 และใช้ผลแยกทักษะนี้จัดลำดับการทบทวน โดยยังคงเรียนครบทั้ง 84 วัน</p></div><p class="small muted">นี่คือคะแนนดิบของแบบประเมินภายใน ไม่ใช่ CEFR certification หรือคะแนน TOEIC 10–990</p><button class="primary" id="placementGoCourse">เริ่มหลักสูตร 84 วัน →</button> <button class="secondary" id="placementRetake">ทำแบบทดสอบใหม่</button>';
+ $('#placementResult').innerHTML='<p class="eyebrow">YOUR BASELINE</p><h2>ผลการประเมินเบื้องต้น</h2><div class="result-score">'+r.total+' / 80 <small>('+r.pct+'%)</small></div><section class="cefr-card"><p class="eyebrow">ESTIMATED CEFR LEVEL</p><div class="cefr-level">'+overallCEFR+'</div><p>ระดับภาษาอังกฤษโดยประมาณจากคะแนนรวม</p><span class="cefr-caution">ความเชื่อมั่น: ต่ำ · ใช้เป็นแนวทางตั้งต้นเท่านั้น</span></section><h3>'+r.band+'</h3><p class="muted">วันที่ทำ: '+new Date(r.date).toLocaleString('th-TH')+' · ใช้เวลา '+fmt(r.duration)+'</p><h3>CEFR แยกตามทักษะ</h3><div class="placement-results">'+Object.entries(r.scores).map(([k,v])=>'<div class="skill-row"><div><b>'+labels[k]+'</b><span>'+skillCEFR[k]+' · '+v+' / 20 ('+Math.round(v/20*100)+'%)</span></div><div class="bar"><i style="width:'+(v/20*100)+'%"></i></div></div>').join('')+'</div><div class="explanation"><b>จุดที่ควรเริ่มพัฒนา: '+labels[weak]+'</b><p>'+advice[weak]+'</p><p>หลักสูตรแนะนำ: เริ่ม Day 1 และใช้ผลแยกทักษะนี้จัดลำดับการทบทวน โดยยังคงเรียนครบทั้ง 84 วัน</p></div><p class="small muted">CEFR เป็นการประมาณแบบ heuristic จากข้อสอบภายใน 80 ข้อ ไม่ใช่ผลสอบ CEFR ที่ผ่านการสอบเทียบหรือการรับรองจากหน่วยงานภาษา ข้อสอบมีจำนวนข้อจำกัดและ Listening ใช้ Text-to-Speech จึงควรยืนยันระดับด้วยแบบทดสอบมาตรฐานเพิ่มเติม · C2 ไม่ได้ประเมินในชุดนี้</p><button class="primary" id="placementGoCourse">เริ่มหลักสูตร 84 วัน →</button> <button class="secondary" id="placementRetake">ทำแบบทดสอบใหม่</button>';
  $('#placementGoCourse').onclick=()=>{if(typeof showView==='function')showView('course');if(typeof openLesson==='function')openLesson(1)};
  $('#placementRetake').onclick=start;
 }
